@@ -1,6 +1,9 @@
 #!/bin/bash
 
 name=$1
+shift
+
+lxc rm -f $name 2> /dev/null
 
 # CREATING THE CONTAINER
 lxc launch images:archlinux $name
@@ -80,7 +83,8 @@ lxc exec $name -- sh -c "sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/
 
 lxc restart $name
 
-lxc exec $name -- sh -c "pacman -Syu zsh neovim mesa mesa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack --noconfirm"
+lxc exec $name -- sh -c "pacman -Syu zsh neovim mesa mesa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack wl-clipboard --noconfirm"
+lxc exec $name -- sh -c "pacman -S $@ --noconfirm"
 
 lxc exec $name -- sh -c "echo 'zstyle :compinstall filename '/root/.zshrc'' >> /root/.zshrc"
 lxc exec $name -- sh -c "echo 'autoload -Uz compinit' >> /root/.zshrc"
