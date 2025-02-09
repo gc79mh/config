@@ -83,7 +83,7 @@ lxc exec $name -- sh -c "sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/
 
 lxc restart $name
 
-lxc exec $name -- sh -c "pacman -Syu zsh neovim mesa mesa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack wl-clipboard --noconfirm"
+lxc exec $name -- sh -c "pacman -Syu zsh neovim base-devel git mesa mesa-utils gnu-free-fonts pipewire pipewire-alsa pipewire-pulse pipewire-jack wl-clipboard --noconfirm"
 lxc exec $name -- sh -c "pacman -S $@ --noconfirm"
 
 lxc exec $name -- sh -c "echo 'zstyle :compinstall filename '/root/.zshrc'' >> /root/.zshrc"

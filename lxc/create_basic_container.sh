@@ -17,7 +17,7 @@ lxc restart $name
 
 sleep 2
 
-lxc exec $name -- sh -c "pacman -Syu zsh neovim --noconfirm"
+lxc exec $name -- sh -c "pacman -Syu zsh git base-devel neovim --noconfirm"
 lxc exec $name -- sh -c "pacman -S $@ --noconfirm"
 
 
