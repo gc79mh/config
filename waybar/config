@@ -1,7 +1,7 @@
 {
-    "height": 24, // Waybar height (to be removed for auto height)
+    "height": 26, 
 
-    "modules-left": ["hyprland/workspaces", "hyprland/mode", "hyprland/scratchpad", "custom/media"],
+    "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock"],
     "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery"],
 
@@ -27,43 +27,25 @@
         "format-icons": ["", "", "", "", ""]
     },
     "network": {
-        "format-wifi": "  {essid}",
-        "tooltip-format": " {ifname}: {ipaddr}/{cidr}",
-        "format-linked": " {ifname} (No IP)",
         "format-disconnected": " ",
+
+        "format-wifi": "  {essid}",
+    	"format-ethernet": " ",
+
+        "tooltip-format": " {ifname}: {ipaddr}/{cidr}",
         "on-click": "kitty nmtui",
     },
     "pulseaudio": {
         "scroll-step": 5, // %, can be a float
-        "format": "{icon} {volume}% {format_source}",
+        "format": "{icon}  {volume}% ",
         "format-bluetooth": " {icon} {volume}% {format_source}",
         "format-bluetooth-muted": "  {icon} {format_source}",
         "format-muted": "  {format_source}",
         "format-source": " {volume}%",
         "format-source-muted": "",
         "format-icons": {
-//            "headphone": "",
-//            "hands-free": "",
-//            "headset": "",
-//            "phone": "",
-//            "portable": "",
-//            "car": "",
             "default": ["", "", ""]
         },
-        "on-click": "pavucontrol",
-        "on-click-right": "foot -a pw-top pw-top"
-    },
-    "custom/media": {
-        "format": "{icon} {}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "spotify": "",
-            "default": "🎜"
-        },
-        "escape": true,
-        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
     }
 }
 
