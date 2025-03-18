@@ -30,10 +30,23 @@ require("lazy").setup({
    		dependencies = { "MunifTanjim/nui.nvim" },
   		 opts = {}
 	},
+	{
+		"nvim-treesitter/nvim-treesitter", 
+		ensure_installed = { "python" },
+		highlight = { enable = true },  
+		indent = { enable = true },
+		build = ":TSUpdate"
+	},
+	{
+		"folke/tokyonight.nvim",
+		lazy = false,
+		priority = 1000,
+		opts = {}
+	},
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
-  install = { colorscheme = { "habamax" } },
+--  install = { colorscheme = { "habamax" } },
   -- automatically check for plugin updates
   checker = { enabled = true },
 })
