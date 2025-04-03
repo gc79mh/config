@@ -1,0 +1,2 @@
+#!/bin/bash
+ELECTRON_OZONE_PLATFORM_HINT=wayland code --enable-proposed-api ms-toolsai.jupyter --verbose --no-sandbox

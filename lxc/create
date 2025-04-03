@@ -1,0 +1,189 @@
+#!/bin/bash
+
+# Function to display the menu
+show_menu() {
+    clear
+    echo "=================="
+    echo "       lxc        "
+    echo "=================="
+    echo "1. Create Basic"
+    echo "2. Create Visual"
+    echo "3. Exit"
+    echo "=================="
+}
+
+configure_pacman() {
+
+	lxc exec $1 -- sh -c "sed -i 's/#Color/Color/' /etc/pacman.conf"
+	lxc exec $1 -- sh -c "sed -i 's/#NoProgressBar/ILoveCandy/' /etc/pacman.conf"
+	lxc exec $1 -- sh -c "sed -i 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf"
+	lxc exec $1 -- sh -c "sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf"
+
+}
+
+configure_git() {
+  lxc exec $1 -- sh -c "git config --global user.email 'wiktor.bochenski@student.put.poznan.pl'"
+  lxc exec $1 -- sh -c "git config --global user.name 'gc79mh'"
+}
+
+configure_zsh() {
+
+  
+  lxc exec $1 -- sh -c 'curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh > setup_zsh'
+  lxc exec $1 -- sh -c 'chmod +x setup_zsh'
+  lxc exec $1 -- sh -c 'sed -i "/exec zsh -l/d" setup_zsh'
+  lxc exec $1 -- sh -c '/root/setup_zsh --unattended'
+  lxc exec $1 -- sh -c 'rm -fr /root/setup_zsh'
+	lxc exec $1 -- sed -i 's/^ZSH_THEME="robbyrussell"/ZSH_THEME="clean"/' /root/.zshrc
+	lxc exec $1 -- sh -c "echo 'export TERM=xterm-256color' >> /root/.zshrc"
+
+}
+
+create_basic() {
+
+	local name
+	read -p "Name: " name
+	local packages
+	read -p "Packages: " packages
+
+	lxc rm -f $name 2> /dev/null
+
+	# CREATING THE CONTAINER
+	lxc launch images:archlinux $name
+
+	lxc file push /etc/pacman.d/mirrorlist ${name}/etc/pacman.d/mirrorlist
+	lxc file push /etc/hosts ${name}/etc/hosts
+
+  configure_pacman $name
+
+	lxc restart $name
+
+	sleep 2
+
+	lxc exec $name -- sh -c "pacman -Syu zsh git base-devel neovim --noconfirm 2> /dev/null"
+	lxc exec $name -- sh -c "pacman -Syu ${packages} --noconfirm"
+
+  configure_zsh $name
+  configure_git $name
+
+	lxc restart $name
+  
+  clear 
+
+	lxc exec $name -- zsh
+}
+
+
+# Functions for menu options
+create_visual() {
+
+	local name
+	read -p "Name: " name
+	local packages
+	read -p "Packages: " packages
+
+	lxc rm -f $name 2> /dev/null
+
+	# CREATING THE CONTAINER
+	lxc launch images:archlinux $name
+
+	# ENV VARIABLES
+	lxc config set $name environment.DISPLAY ":0"
+	lxc config set $name environment.TERM "xterm-256color"
+	lxc config set $name environment.WAYLAND_DISPLAY "wayland-1"
+	lxc config set $name environment.XDG_RUNTIME_DIR "/run/user/1000"
+
+	# SOCKETS
+	lxc config device add $name wayland-socket proxy \
+  		bind=container \
+  		connect=unix:/run/user/1000/wayland-1 \
+  		gid="1000" \
+  		listen=unix:/mnt/wayland-1 \
+  		mode="0777" \
+  		security.gid="1000" \
+  		security.uid="1000" \
+  		uid="1000"
+
+	lxc config device add $name X-socket proxy \
+  		bind=container \
+  		connect=unix:/tmp/.X11-unix/X0 \
+  		gid="1000" \
+  		listen=unix:/mnt/X0 \
+  		mode="0777" \
+  		security.gid="1000" \
+  		security.uid="1000" \
+  		uid="1000"
+
+	lxc config device add $name pulse-socket proxy \
+  		bind=container \
+  		connect=unix:/run/user/1000/pulse/native \
+  		gid="1000" \
+  		listen=unix:/mnt/native \
+  		mode="0777" \
+  		security.gid="1000" \
+  		security.uid="1000" \
+  		uid="1000"
+
+	# GPU
+
+	lxc config device add $name gpu gpu
+
+	# SOUNDCARD
+
+	lxc config device add $name soundcard disk \
+  	path=/dev/snd \
+  	source=/dev/snd
+
+	# SETUP SCRIPT
+
+	lxc exec $name -- sh -c "echo '#!/bin/bash' >> /usr/local/bin/setup"
+	lxc exec $name -- sh -c "echo 'mkdir /run/user/1000 2> /dev/null' >> /usr/local/bin/setup"
+	lxc exec $name -- sh -c "echo 'ln -s /mnt/wayland-1 /run/user/1000 2> /dev/null' >> /usr/local/bin/setup"
+	lxc exec $name -- sh -c "echo 'mkdir /run/user/1000/pulse 2> /dev/null' >> /usr/local/bin/setup"
+	lxc exec $name -- sh -c "echo 'ln -s /mnt/native /run/user/1000/pulse 2> /dev/null' >> /usr/local/bin/setup"
+	lxc exec $name -- sh -c "echo 'ln -s /mnt/X0 /tmp/.X11-unix/ 2> /dev/null' >> /usr/local/bin/setup"
+
+	lxc exec $name -- sh -c "chmod +x /usr/local/bin/setup"
+
+	# SYSTEMD
+
+	lxc exec $name -- sh -c "echo '[Unit]' >> /etc/systemd/system/setup.service"
+	lxc exec $name -- sh -c "echo 'Description=My Script on Startup' >> /etc/systemd/system/setup.service"
+	lxc exec $name -- sh -c "echo '[Service]' >> /etc/systemd/system/setup.service"
+	lxc exec $name -- sh -c "echo 'ExecStart=/usr/local/bin/setup' >> /etc/systemd/system/setup.service"
+	lxc exec $name -- sh -c "echo '[Install]' >> /etc/systemd/system/setup.service"
+	lxc exec $name -- sh -c "echo 'WantedBy=default.target' >> /etc/systemd/system/setup.service"
+
+	lxc exec $name -- sh -c "systemctl enable setup"
+
+  configure_pacman $name
+
+	lxc restart $name
+
+	lxc exec $name -- sh -c "pacman -Syu zsh neovim base-devel git mesa mesa-utils gnu-free-fonts pipewire pipewire-alsa pipewire-pulse pipewire-jack wl-clipboard --noconfirm 2> /dev/null"
+	lxc exec $name -- sh -c "pacman -Syu ${packages} --noconfirm"
+
+	lxc exec $name -- sh -c "useradd -u 1000 -s /bin/zsh -m user"
+
+  configure_zsh $name
+  configure_git $name
+
+	lxc restart $name
+
+  clear 
+
+	lxc exec $name -- zsh
+}
+
+
+# Main loop
+while true; do
+	show_menu
+	read -p ": " choice
+	case $choice in
+		1) create_basic ; exit 0 ;;
+       		2) create_visual ; exit 0 ;;
+        	3) echo "Exiting..."; exit 0 ;;
+        	*) echo "Invalid option. Please try again." ;;
+	esac
+done
