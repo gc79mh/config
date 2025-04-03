@@ -1,4 +1,5 @@
--- Bootstrap lazy.nvim
+-----------------------------------------------------------
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -15,17 +16,23 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-----------------------------------------------------------
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
+
+-- Enable line numbers
+vim.opt.number = true
+-- Use the system clipboard
+vim.opt.clipboard = 'unnamedplus'  
+-- Disable the statusline
+vim.opt.laststatus = 0
 
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
 	{
 		"nvim-treesitter/nvim-treesitter", 
-		ensure_installed = { "python" },
-		highlight = { enable = true },  
-		indent = { enable = true },
 		build = ":TSUpdate"
 	},
 	{
@@ -34,33 +41,17 @@ require("lazy").setup({
 		priority = 1000,
 		opts = {}
 	},
-    -- add your plugins here
   },
-  -- Configure any other settings here. See the documentation for more details.
-  -- colorscheme that will be used when installing plugins.
-  install = { colorscheme = { "tokyonight" } },
-  checker = { enabled = true },
 })
 
 require("nvim-treesitter.configs").setup({
-  ensure_installed = { "python" },
-  highlight = { enable = true },
-  indent = { enable = true },
+	ensure_installed = { "python" , "cpp" , "bash" },
+	highlight = { enable = true },
+	indent = { enable = true },
 })
 
--- Enable line numbers
-vim.opt.number = true
-
--- Use the system clipboard
-vim.opt.clipboard = 'unnamedplus'  
-
--- Disable the statusline
-vim.opt.laststatus = 0
-
--- Enable syntax highlighting
--- vim.cmd('syntax off')
+-- Color
 vim.cmd("colorscheme tokyonight")
-
 -- Transparent
 vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
