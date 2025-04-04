@@ -3,10 +3,12 @@
 
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery"],
+    "modules-right": ["pulseaudio", "network", "battery"],
 
     "clock": {
-        "format": "{:%H:%M}"
+        "format": "{:%H:%M:%S}",
+	"tooltip": false,
+	"interval": 1
     },
     "cpu": {
         "format": " {usage}%",
@@ -20,24 +22,25 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon} {capacity}%",
+        "format": "{icon} ",
         "format-charging": " {capacity}%",
         "format-plugged": " {capacity}%",
-        "format-alt": "{icon} {time}",
-        "format-icons": ["", "", "", "", ""]
+        "format-alt": "{capacity}%",
+        "format-icons": ["", "", "", "", ""],
     },
     "network": {
         "format-disconnected": " ",
-
-        "format-wifi": "  {essid}",
+        "format-wifi": " ",
     	"format-ethernet": " ",
 
-        "tooltip-format": " {ifname}: {ipaddr}/{cidr}",
+        "tooltip-format": "  {essid}: {ipaddr}/{cidr}",
         "on-click": "kitty nmtui",
     },
     "pulseaudio": {
-        "scroll-step": 5, // %, can be a float
-        "format": "{icon}  {volume}% ",
+        "scroll-step": 1, // %, can be a float
+	"tooltip": false,
+        "format": "{icon}",
+	"format-alt": "{volume}%",
         "format-bluetooth": " {icon} {volume}% {format_source}",
         "format-bluetooth-muted": "  {icon} {format_source}",
         "format-muted": "  {format_source}",
