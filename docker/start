@@ -1,0 +1,7 @@
+docker run -it \
+  --env WAYLAND_DISPLAY=$WAYLAND_DISPLAY \
+  --env XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR \
+  --volume /home/user/university:/root/university \--volume $XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR \
+  --device /dev/dri \
+  --group-add video \
+  gui-wayland-app bash -c "ELECTRON_OZONE_PLATFORM_HINT=wayland code --enable-proposed-api ms-toolsai.jupyter --verbose --no-sandbox"
