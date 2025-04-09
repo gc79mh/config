@@ -24,20 +24,27 @@ vim.g.maplocalleader = "\\"
 -- Map <leader>s to save the current file
 vim.keymap.set("n", "<leader>s", ":w<CR>", { noremap = true, silent = true })
 
--- Map <leader>b to run a custom bash command
--- vim.keymap.set("n", "<leader>r", [[:!Rscript -e "rmarkdown::render('essa.Rmd')" > /dev/null & firefox essa.html <CR>]], { noremap = true, silent = true })
+-- vim.api.nvim_set_keymap('n', '<leader><CR>', ':w | !python %:p <CR>', { noremap = true, silent = true })
 
-local function run_bash_command()
-  local current_file = vim.fn.expand('%')
+vim.keymap.set('n', '<leader>r', function()
+  -- Save the file first
+  vim.cmd('write')
 
-  local cmd = "R -f" .. current_file .. " && firefox"
+  -- Get filetype or extension
+  local ft = vim.bo.filetype
+  local filename = vim.fn.expand('%:p')
 
- -- Open a terminal window and execute the command
-  vim.cmd('split | terminal bash -c "' .. cmd .. '"')
-end
-
-vim.keymap.set('n', '<Leader>r', run_bash_command, { noremap = true, silent = true })
-
+  if ft == 'cpp' then
+    -- Example: compile and run the C++ file
+    vim.cmd('!g++ ' .. filename .. ' -o /tmp/a.out && /tmp/a.out && clear')
+  elseif ft == 'python' then
+    -- Run Python script
+    vim.cmd('!python3 ' .. filename)
+  else
+    -- Default fallback
+    print('No run command set for filetype: ' .. ft)
+  end
+end, { desc = "Save and run file based on type" })
 
 
 -- Enable line numbers
