@@ -21,6 +21,25 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+-- Map <leader>s to save the current file
+vim.keymap.set("n", "<leader>s", ":w<CR>", { noremap = true, silent = true })
+
+-- Map <leader>b to run a custom bash command
+-- vim.keymap.set("n", "<leader>r", [[:!Rscript -e "rmarkdown::render('essa.Rmd')" > /dev/null & firefox essa.html <CR>]], { noremap = true, silent = true })
+
+local function run_bash_command()
+  local current_file = vim.fn.expand('%')
+
+  local cmd = "R -f" .. current_file .. " && firefox"
+
+ -- Open a terminal window and execute the command
+  vim.cmd('split | terminal bash -c "' .. cmd .. '"')
+end
+
+vim.keymap.set('n', '<Leader>r', run_bash_command, { noremap = true, silent = true })
+
+
+
 -- Enable line numbers
 vim.opt.number = true
 -- Use the system clipboard
