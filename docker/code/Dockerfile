@@ -1,17 +1,29 @@
-FROM archlinux:latest
+FROM ubuntu:latest
 
-RUN pacman -Syu --noconfirm \
-    wayland \
-    base-devel \
-    ttf-jetbrains-mono-nerd \
-    python \
-    r \
-    python-pip \
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+    build-essential \
+    python3 \
+    r-base \
+    r-base-dev \
+    python3-venv \
     jupyter-notebook \
-    code \
-    && pacman -Scc --noconfirm
+    sudo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN Rscript -e "install.packages('IRkernel', repos='https://cran.mi2.ai/'); IRkernel::installspec(); install.packages('languageserver', repos='https://cran.mi2.ai/'); install.packages('tidyverse', repos='https://cran.mi2.ai/')"
+RUN apt-get update && sudo apt-get install -y wget gpg && \
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
+    sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
+    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" |sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null && \ 
+    rm -f packages.microsoft.gpg && \ 
+    sudo apt-get install -y apt-transport-https && \ 
+    sudo apt-get update && \
+    sudo apt-get install -y code
+
+#RUN Rscript -e "install.packages('IRkernel', repos='https://cran.mi2.ai/'); IRkernel::installspec(); install.packages('languageserver', repos='https://cran.mi2.ai/'); install.packages('tidyverse', repos='https://cran.mi2.ai/')"
 
 RUN mkdir -p /root/.config/"Code - OSS"/User && \
     echo '{' > /root/.config/"Code - OSS"/User/settings.json && \
@@ -24,4 +36,4 @@ RUN echo "linters: linters_with_defaults(line_length_linter=line_length_linter(2
 
 ENV ELECTRON_OZONE_PLATFORM_HINT=wayland
 
-CMD code --enable-proposed-api ms-toolsai.jupyter --no-sandbox --verbose
+CMD code --enable-proposed-api ms-toolsai.jupyter --no-sandbox --verbose --user-data-dir /root
