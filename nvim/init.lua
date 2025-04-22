@@ -22,7 +22,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 -- Map <leader>s to save the current file
-vim.keymap.set("n", "<leader>s", ":w<CR>", { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>w", ":!bash -c 'cat odp | wc -w'<CR>", { noremap = true, silent = true })
 
 -- vim.api.nvim_set_keymap('n', '<leader><CR>', ':w | !python %:p <CR>', { noremap = true, silent = true })
 
@@ -53,6 +53,8 @@ vim.opt.number = true
 vim.opt.clipboard = 'unnamedplus'  
 -- Disable the statusline
 vim.opt.laststatus = 0
+
+vim.opt.linebreak = true
 
 -- Setup lazy.nvim
 require("lazy").setup({
