@@ -27,6 +27,7 @@
         "format-plugged": " {capacity}%",
         "format-alt": "{capacity}%",
         "format-icons": ["", "", "", "", ""],
+	"interval": 1
     },
     "network": {
         "format-disconnected": " ",
