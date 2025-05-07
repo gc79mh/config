@@ -69,6 +69,13 @@ require("lazy").setup({
 		priority = 1000,
 		opts = {}
 	},
+	{
+  		"preservim/nerdtree",
+  		config = function()
+    		-- Optional: You can set a keybinding to toggle NERDTree
+    			vim.keymap.set('n', '<leader>n', ':NERDTreeToggle<CR>', { noremap = true, silent = true })
+  		end
+	},
   },
 })
 
